@@ -123,6 +123,16 @@ const init = async () => {
         return newResponse;
       }
 
+      // Handle payload too large (413) - Hapi returns this as Boom error
+      if (response.output && response.output.statusCode === 413) {
+        const newResponse = h.response({
+          status: 'fail',
+          message: 'Payload content length greater than maximum allowed: 512000',
+        });
+        newResponse.code(413);
+        return newResponse;
+      }
+
       if (!response.isServer) {
         return h.continue;
       }
@@ -142,4 +152,12 @@ const init = async () => {
   console.log(`OpenMusic API v3 running at ${server.info.uri}`);
 };
 
-init();
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
+  process.exit(1);
+});
+
+init().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});

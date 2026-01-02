@@ -11,10 +11,10 @@ const routes = (handler) => [
     path: '/albums/{id}/covers',
     options: {
       payload: {
-                multipart: true,
         maxBytes: 512000,
         output: 'stream',
         parse: true,
+        multipart: true,
       },
     },
     handler: (r,h) => handler.postCoverHandler(r,h),

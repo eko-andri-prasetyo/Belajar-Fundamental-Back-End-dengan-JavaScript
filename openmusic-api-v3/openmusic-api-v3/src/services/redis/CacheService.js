@@ -20,19 +20,31 @@ class CacheService {
   }
 
   async get(key) {
-    if (!this._isReady) throw new Error('Redis not ready');
-    const result = await this._client.get(key);
-    return result;
+    if (!this._isReady) return null;
+    try {
+      const result = await this._client.get(key);
+      return result;
+    } catch (error) {
+      return null;
+    }
   }
 
   async set(key, value, expirationInSecond = 1800) {
-    if (!this._isReady) throw new Error('Redis not ready');
-    await this._client.set(key, value, { EX: expirationInSecond });
+    if (!this._isReady) return;
+    try {
+      await this._client.set(key, value, { EX: expirationInSecond });
+    } catch (error) {
+      // Ignore cache set errors
+    }
   }
 
   async delete(key) {
     if (!this._isReady) return;
-    await this._client.del(key);
+    try {
+      await this._client.del(key);
+    } catch (error) {
+      // Ignore cache delete errors
+    }
   }
 }
 
